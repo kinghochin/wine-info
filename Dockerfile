@@ -1,4 +1,4 @@
-# Use full Debian-based Python image
+# Use Debian-based Python image
 FROM python:3.12-bullseye
 
 # Set working directory
@@ -12,6 +12,7 @@ RUN apt-get update && apt-get install -y \
 	libpango1.0-0 libasound2 libxshmfence1 libwayland-client0 \
 	libwayland-cursor0 libx11-xcb1 libxcb1 libxext6 \
 	libxi6 libxrender1 libxtst6 libglib2.0-0 \
+	libatk-bridge2.0-0 libatspi2.0-0 libxfixes3 \
 	&& rm -rf /var/lib/apt/lists/*
 
 # Copy requirements
@@ -20,11 +21,11 @@ COPY requirements.txt ./
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy application
+# Copy app code
 COPY . /app
 
 # Install Playwright browsers
-RUN python -m playwright install
+RUN python -m playwright install --with-deps
 
 # Expose FastAPI port
 EXPOSE 10000
