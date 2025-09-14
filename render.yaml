@@ -2,19 +2,10 @@ services:
   - type: web
     name: waitrose-scraper
     env: docker
-    dockerfilePath: Dockerfile
-    # The branch to deploy from
-    branch: main
-    # Port Render expects your app to listen on
+    plan: free
+    region: oregon
+    dockerfilePath: ./Dockerfile
     port: 10000
-    # Build and start commands are handled by Dockerfile, no extra needed
-    autoDeploy: true
-    plan: starter
-    # Optional: set environment variables
-    envVars:
-      - key: GEMINI_API_KEY
-        fromDatabase: false
-        value: "<YOUR_GEMINI_API_KEY>"
-      - key: OPENAI_API_KEY
-        fromDatabase: false
-        value: "<YOUR_OPENAI_API_KEY>"
+    buildCommand: echo "Docker build handled by Dockerfile"
+    # Start command is ignored for Docker
+    startCommand: ""

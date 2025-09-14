@@ -1,26 +1,39 @@
-# 1. Base image with Python and Playwright deps
-FROM mcr.microsoft.com/playwright/python:v1.48.0-jammy
+# Base image
+FROM python:3.11-slim
 
-# 2. Install uv (fast Python package manager)
-RUN pip install uv
+# Set environment
+ENV PYTHONUNBUFFERED=1
+ENV PORT=10000
 
-# 3. Set working directory
+# Install system dependencies for Playwright
+RUN apt-get update && apt-get install -y \
+	libnss3 libatk1.0-0 libatk-bridge2.0-0 libcups2 libxkbcommon0 \
+	libxcomposite1 libxdamage1 libxrandr2 libgbm1 libpango1.0-0 \
+	libasound2 libxshmfence1 wget curl unzip fontconfig git \
+	&& rm -rf /var/lib/apt/lists/*
+
+# Set working directory
 WORKDIR /app
 
-# 4. Copy dependency files
-COPY pyproject.toml uv.lock* ./
+# Copy Python dependencies
+COPY pyproject.toml poetry.lock* /app/
 
-# 5. Install dependencies with uv
-RUN uv sync --frozen --no-dev
+# Install Poetry
+RUN pip install --no-cache-dir poetry
 
-# 6. Copy app source code
-COPY . .
+# Install dependencies without virtualenv
+RUN poetry config virtualenvs.create false \
+	&& poetry install --no-interaction --no-ansi --only main
 
-# 7. Ensure Playwright browsers are installed
-RUN playwright install --with-deps chromium
+# Copy app code
+COPY . /app
 
-# 8. Expose Render port
+# Install Playwright and browsers
+RUN pip install --no-cache-dir playwright \
+	&& playwright install --with-deps
+
+# Expose port
 EXPOSE 10000
 
-# 9. Start FastAPI with uvicorn
-CMD ["uv", "run", "uvicorn", "app:app", "--host", "0.0.0.0", "--port", "10000"]
+# Start the FastAPI app
+CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "10000"]
