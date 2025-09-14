@@ -29,11 +29,11 @@ RUN poetry config virtualenvs.create false \
 COPY . /app
 
 # Install Playwright and browsers
-RUN pip install --no-cache-dir playwright \
+RUN pip install --no-cache-dir playwright gunicorn \
 	&& playwright install --with-deps
 
 # Expose port
 EXPOSE 10000
 
 # Start the FastAPI app
-CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "10000"]
+CMD ["gunicorn", "app:app", "--host", "0.0.0.0", "--port", "10000"]
