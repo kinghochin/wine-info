@@ -2,17 +2,15 @@ services:
   - type: web
     name: waitrose-scraper
     env: docker
-    plan: free # or your preferred plan
+    plan: free
     region: oregon
     dockerfilePath: ./Dockerfile
     buildCommand: ""
     startCommand: "uvicorn app:app --host 0.0.0.0 --port 10000"
     envVars:
       - key: OPENAI_API_KEY
-        fromDatabase: false
         value: "<your_openai_api_key_here>"
       - key: GEMINI_API_KEY
-        fromDatabase: false
         value: "<your_gemini_api_key_here>"
     autoDeploy: true
     healthCheckPath: "/"
